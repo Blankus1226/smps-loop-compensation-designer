@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+
+# PyInstaller output
+build/
+*.spec
+
+# Build artifacts (attach the .exe / .html to a GitHub Release instead)
+dist/
+
+# Test outputs
+test/spice/
+test/shots/
+
+# Datasheet PDFs (copyrighted by their vendors)
+数据手册/
+*.pdf

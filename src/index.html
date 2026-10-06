@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>开关电源环路补偿设计工具</title>
+<style>/*@@CSS@@*/</style>
+</head>
+<body>
+<header>
+  <h1>环路补偿设计工具</h1>
+  <nav class="tabs" role="tablist" aria-label="主功能">
+    <button role="tab" id="tb-design" aria-controls="pn-design" aria-selected="true">设计</button>
+    <button role="tab" id="tb-sweep" aria-controls="pn-sweep" aria-selected="false">工况扫描</button>
+    <button role="tab" id="tb-step" aria-controls="pn-step" aria-selected="false">负载阶跃</button>
+    <button role="tab" id="tb-export" aria-controls="pn-export" aria-selected="false">导出</button>
+    <button role="tab" id="tb-learn" aria-controls="pn-learn" aria-selected="false">学习模式</button>
+    <button role="tab" id="tb-gloss" aria-controls="pn-gloss" aria-selected="false">术语表</button>
+  </nav>
+  <div class="hbtns">
+    <label class="sr" for="preset">载入示例</label>
+    <select id="preset" class="btn"><option value="">载入示例…</option></select>
+    <button class="btn" id="btn-theme" type="button" aria-label="切换深浅色主题">◐ 主题</button>
+  </div>
+</header>
+<main>
+  <section role="tabpanel" id="pn-design" aria-labelledby="tb-design">
+    <div class="design">
+      <form class="form" id="form" autocomplete="off" onsubmit="return false"></form>
+      <div class="cards">
+        <div class="card"><h2>设计结果 <span class="sp"></span><span id="title-sum" class="muted" style="font-weight:400;font-size:13px"></span></h2><div class="kpis" id="kpis"></div><div class="msgs" id="msgs" style="margin-top:10px"></div></div>
+        <div class="card"><h2>Bode 图 <span class="sp"></span><span class="seg" id="loopSel" style="margin:0" hidden></span><button class="btn sm" id="png-bode" type="button">导出 PNG</button></h2><div id="bode"></div></div>
+        <div class="card" id="card-gc"><h2>补偿器单独的 Bode 图 <span class="sp"></span><span class="seg" id="gcSel" style="margin:0" hidden></span><button class="btn sm" id="png-gc" type="button">导出 PNG</button></h2><p class="hint" id="gc-hint"></p><div id="gcbode"></div></div>
+        <div class="card" id="card-comp"><h2>补偿器 <span class="sp"></span><span id="comp-sub" class="muted" style="font-weight:400;font-size:13px"></span></h2><div class="two"><div id="schem"></div><div id="comp-tables"></div></div></div>
+        <div class="card" id="card-tune"><h2>手动微调 <span class="sp"></span><label class="row" style="font-weight:400;font-size:13px"><input type="checkbox" id="tune-on"> 启用（覆盖自动设计）</label></h2><div id="tune"></div></div>
+        <div class="card" id="card-dig" hidden><h2>数字实现 <span class="sp"></span><button class="btn sm" id="copy-c" type="button">复制 C 代码</button></h2><div id="dig"></div></div>
+      </div>
+    </div>
+  </section>
+  <section role="tabpanel" id="pn-sweep" aria-labelledby="tb-sweep" hidden>
+    <div class="cards">
+      <div class="card"><h2>工况扫描（补偿器固定为标称设计）<span class="sp"></span><button class="btn sm" id="png-sweep" type="button">导出 PNG</button></h2><p class="hint">Vin 取 最小/标称/最大，Io 取 最小/标称/最大，共 9 个角点。Vin、Io 范围在“设计”页左侧修改。</p><div class="tbw" id="sweep-table"></div></div>
+      <div class="card"><h2>各工况开环增益叠加</h2><div id="sweep-bode"></div></div>
+    </div>
+  </section>
+  <section role="tabpanel" id="pn-step" aria-labelledby="tb-step" hidden>
+    <div class="cards">
+      <div class="card"><h2>负载阶跃响应 <span class="sp"></span><button class="btn pri sm" id="run-sim" type="button">重新仿真</button><button class="btn sm" id="png-step" type="button">导出 PNG</button></h2>
+        <p class="hint">逐周期开关级仿真（真实比较器/锁存/导通定时器 + 圆整后补偿器或定点差分方程），叠加小信号模型预测（闭环输出阻抗数值反变换，已做一个周期滑动平均）。阶跃幅度与容差在“设计”页左侧“负载阶跃”中修改。</p>
+        <div class="kpis" id="step-kpis"></div><div class="msgs" id="step-msgs" style="margin-top:8px"></div><div id="step-plot" style="margin-top:8px"></div></div>
+    </div>
+  </section>
+  <section role="tabpanel" id="pn-export" aria-labelledby="tb-export" hidden>
+    <div class="cards">
+      <div class="card"><h2>导出</h2>
+        <div class="row" id="exp-btns"></div>
+        <p class="hint">LTspice 网表可直接用 LTspice 打开（File → Open，文件类型选 *.cir），平均模型运行 .ac 后绘制 −V(vo)/V(fb) 即开环增益；开关模型运行 .tran 观察负载阶跃。PSIM 参数文件在 Simulate → Parameter File 中引用。</p>
+        <h3 id="exp-title">预览</h3><pre class="code" id="exp-pre"></pre></div>
+    </div>
+  </section>
+  <section role="tabpanel" id="pn-learn" aria-labelledby="tb-learn" hidden>
+    <div class="learn"><nav class="toc" id="toc" aria-label="学习目录"></nav><div class="card lesson" id="lesson"></div></div>
+  </section>
+  <section role="tabpanel" id="pn-gloss" aria-labelledby="tb-gloss" hidden>
+    <div class="card"><h2>术语表</h2><p class="hint">界面中带虚线下划线的英文缩写，鼠标悬停（或键盘聚焦）即可看到这里的注释。</p><div class="tbw no-t" id="gloss"></div></div>
+  </section>
+</main>
+<input type="file" id="file-in" accept=".json,application/json" hidden>
+<script>/*@@JS@@*/</script>
+</body>
+</html>
