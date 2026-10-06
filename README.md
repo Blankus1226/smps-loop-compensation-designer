@@ -2,7 +2,7 @@
 
 An offline tool for designing and learning feedback-loop compensation for switching power supplies (Buck / Boost / Buck-Boost). It covers voltage mode, peak/average current mode, COT and digital control, with automatic compensator design, Bode / transient analysis, and LTspice / PSIM / C-code export. It also includes an interactive course on loop compensation theory.
 
-Everything ships as a single, dependency-free HTML file (pure JavaScript). There is also an optional Windows desktop build (pywebview + PyInstaller). The UI is in Chinese; abbreviations such as fc, PM and RHPZ are kept in English and have hover tooltips.
+Everything ships as a single, dependency-free HTML file (pure JavaScript). There are also Windows desktop builds: an Electron portable exe and a lighter pywebview + PyInstaller exe. The UI is in Chinese; abbreviations such as fc, PM and RHPZ are kept in English and have hover tooltips.
 
 ![Design view](docs/screenshots/design_buck.png)
 
@@ -60,13 +60,24 @@ Everything ships as a single, dependency-free HTML file (pure JavaScript). There
 
 ## Quick start
 
-Download the HTML file (or the Windows `.exe`) from [Releases](../../releases) and open it in any modern browser. It needs no installation and no network access.
+Download from [Releases](../../releases). None of them needs installation or network access.
+
+| File | Notes |
+|---|---|
+| `smps-loop-compensation-designer.html` | Open in any modern browser |
+| `smps-loop-compensation-designer-<version>-electron-portable.exe` | Electron desktop app (~100 MB, bundles Chromium) |
+| `smps-loop-compensation-designer.exe` | pywebview desktop app (~15 MB, uses the system WebView2) |
+
+The desktop builds add native "Save as" dialogs and open local datasheets from a `数据手册\` folder next to the exe.
 
 To build from source:
 
 ```bash
 python build.py        # inline src/*.css and src/*.js into dist/<name>.html
-python build.py exe    # also package a single-file Windows exe (requires pywebview, pyinstaller)
+npm install            # Electron + electron-builder
+npm start              # run the Electron app
+npm run dist           # package the Electron portable exe into release/
+python build.py exe    # package the pywebview exe (requires pywebview, pyinstaller)
 ```
 
 ## Project layout
@@ -84,6 +95,7 @@ src/            JavaScript modules, CSS and the HTML template
   netsw.js      LTspice switching-level transient netlist
   learn*.js     learning-mode lessons
   ui_*.js       user interface
+electron/       Electron desktop shell (main process + preload bridge)
 app.py          pywebview desktop shell (native save dialogs)
 build.py        build script
 test/           Node.js and Python verification scripts

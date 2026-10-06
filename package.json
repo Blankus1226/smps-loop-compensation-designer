@@ -1,0 +1,30 @@
+{
+  "name": "smps-loop-compensation-designer",
+  "productName": "环路补偿设计工具",
+  "version": "1.1.0",
+  "description": "SMPS loop compensation designer and interactive course",
+  "author": "Blankus1226",
+  "license": "MIT",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "prestart": "python build.py",
+    "start": "electron .",
+    "predist": "python build.py",
+    "dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "io.github.blankus1226.smps-loop-compensation-designer",
+    "productName": "环路补偿设计工具",
+    "directories": { "output": "release" },
+    "files": ["electron/**", "package.json"],
+    "extraResources": [{ "from": "dist/环路补偿设计工具.html", "to": "环路补偿设计工具.html" }],
+    "asar": true,
+    "win": { "target": "portable" },
+    "portable": { "artifactName": "smps-loop-compensation-designer-${version}-electron-portable.exe" }
+  }
+}

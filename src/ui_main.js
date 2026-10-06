@@ -8,9 +8,11 @@ UI.toast = function (s) {
   const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = s;
   document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
 };
-// 保存文件：exe（pywebview）走原生“另存为”，浏览器走下载
+// 桌面版原生接口：Electron（preload 注入 desktopApi）或 pywebview；浏览器中为 null
+UI.native = () => G.desktopApi || (G.pywebview && G.pywebview.api) || null;
+// 保存文件：exe 走原生“另存为”，浏览器走下载
 UI.save = function (name, content, b64) {
-  const api = G.pywebview && G.pywebview.api;
+  const api = UI.native();
   if (api && api.save_file) {
     api.save_file(name, content, !!b64).then(p => { if (p) UI.toast('已保存：' + p); });
     return;
@@ -77,7 +79,7 @@ UI.init = function () {
   });
   // exe 中 HTML 位于临时目录，数据手册链接改由原生接口打开（找不到本地文件时打开官网）
   document.addEventListener('click', e => {
-    const a = e.target.closest && e.target.closest('a[href]'), api = G.pywebview && G.pywebview.api;
+    const a = e.target.closest && e.target.closest('a[href]'), api = UI.native();
     if (!a || !api || !api.open_datasheet) return;
     if (a.dataset.ds) { e.preventDefault(); const off = a.parentNode.querySelector('a:not([data-ds])'); api.open_datasheet(a.dataset.ds, off ? off.href : '').then(p => UI.toast(p ? '已打开：' + p : '未找到本地数据手册')); }
     else if (/^https:/.test(a.href)) { e.preventDefault(); api.open_datasheet('', a.href); }

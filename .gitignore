@@ -19,3 +19,5 @@ test/shots/
 
 # Local notes
 需求文档.md
+node_modules/
+release/
