@@ -103,9 +103,14 @@ PS.parseSI = function (str) {
 // ---------- E 系列 ----------
 const E24 = [10, 11, 12, 13, 15, 16, 18, 20, 22, 24, 27, 30, 33, 36, 39, 43, 47, 51, 56, 62, 68, 75, 82, 91];
 const E96 = [100, 102, 105, 107, 110, 113, 115, 118, 121, 124, 127, 130, 133, 137, 140, 143, 147, 150, 154, 158, 162, 165, 169, 174, 178, 182, 187, 191, 196, 200, 205, 210, 215, 221, 226, 232, 237, 243, 249, 255, 261, 267, 274, 280, 287, 294, 301, 309, 316, 324, 332, 340, 348, 357, 365, 374, 383, 392, 402, 412, 422, 432, 442, 453, 464, 475, 487, 499, 511, 523, 536, 549, 562, 576, 590, 604, 619, 634, 649, 665, 681, 698, 715, 732, 750, 768, 787, 806, 825, 845, 866, 887, 909, 931, 953, 976];
+// E192 按 IEC 60063 公式生成（3 位有效数字），唯一例外 9.19 → 9.20；E48/E12/E6 分别取 E96/E24 的隔项
+const E192 = Array.from({ length: 192 }, (_, i) => Math.round(100 * Math.pow(10, i / 192))).map(x => x === 919 ? 920 : x);
+const ESER = { 6: E24.filter((_, i) => i % 4 === 0), 12: E24.filter((_, i) => i % 2 === 0), 24: E24,
+  48: E96.filter((_, i) => i % 2 === 0), 96: E96, 192: E192 };
+PS.E_SERIES = ESER;
 PS.roundE = function (v, series) {
-  if (!(v > 0) || !isFinite(v)) return v;
-  const list = series === 96 ? E96 : E24, base = series === 96 ? 100 : 10;
+  if (!(v > 0) || !isFinite(v) || !ESER[series]) return v;
+  const list = ESER[series], base = series >= 48 ? 100 : 10;
   const e = Math.floor(Math.log10(v)), m = v / Math.pow(10, e) * base;
   let best = list[0], bd = Infinity;
   for (const x of list.concat([base * 10])) { const d = Math.abs(Math.log(m / x)); if (d < bd) { bd = d; best = x; } }

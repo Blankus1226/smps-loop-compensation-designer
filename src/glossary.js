@@ -65,6 +65,7 @@ PS.GLOSS = [
   ['LSB', '最低有效位 Least Significant Bit：一个量化台阶'],
   ['ISR', '中断服务程序 Interrupt Service Routine'],
   ['MCU', '微控制器 Microcontroller'],
+  ['E 系列', 'IEC 60063 标准阻容值系列：E6/E12/E24/E48/E96/E192，每十倍频程取 N 个对数等距值，N 越大精度越高'],
   ['E24', 'E24 标准阻容值系列（约 5% 间隔）'], ['E96', 'E96 标准电阻值系列（约 1% 间隔）'],
   ['LTspice', 'ADI 免费 SPICE 仿真器'], ['PSIM', 'Powersim 电力电子仿真软件'], ['SPICE', '通用电路仿真程序'],
   ['JSON', '文本数据格式，用于保存/载入设计参数'], ['PNG', '位图图片格式'],

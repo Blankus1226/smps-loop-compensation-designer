@@ -13,7 +13,7 @@ PS.DEFAULTS = {
   Vref: 0.8, Vm: 1.0, Ri: 0.1, seRatio: 0.5, R1: 10e3, gm: 1e-3, RbOta: 10e3, Vcmax: 5,
   compType: 'auto', method: 'kfactor', fcAuto: true, fc: 30e3, pm: 60,
   fciAuto: true, fci: 50e3, pmi: 60, Rci: 10e3,
-  roundE: true,
+  roundE: true, eR: 96, eC: 24,   // 圆整系列：电阻 / 电容
   adcBits: 12, adcFs: 3.3, fclk: 200e6, tcRatio: 1.0, dacBits: 12, dacFs: 3.3, disc: 'tustin',
   stepFrom: 0.5, stepTo: 1.0, tol: 1.0,
   manual: false, m: { type: 3, fz1: 2e3, fz2: 5e3, fp1: 60e3, fp2: 250e3 },
@@ -85,7 +85,7 @@ PS.design = function (Pin) {
       R.inner.dc = dc; R.inner.qz = qz;
       ctx.Gdi = s => PS.dEval(qz, s, ctx.Ts);
     } else {
-      const rz = PS.realize(kd.cp, 'opamp', { R1: P.Rci, round: P.roundE, Rb: false });
+      const rz = PS.realize(kd.cp, 'opamp', { R1: P.Rci, round: P.roundE, eR: P.eR, eC: P.eC, Rb: false });
       R.inner.rz = rz;
       ctx.Gci = s => PS.compEval(rz.cpReal, s);
     }
@@ -119,7 +119,7 @@ PS.design = function (Pin) {
       R.gcFloat = s => PS.dEval(R.dc, s, ctx.Ts);
       R.gc = s => C.sc(R.gcPlot(s), kin);                          // vc/(−vo)
     } else {
-      R.rz = PS.realize(kd.cp, fam, { R1: P.R1, Vref: P.Vref, Vo: P.Vo, gm: P.gm, Rb_ota: P.RbOta, round: P.roundE });
+      R.rz = PS.realize(kd.cp, fam, { R1: P.R1, Vref: P.Vref, Vo: P.Vo, gm: P.gm, Rb_ota: P.RbOta, round: P.roundE, eR: P.eR, eC: P.eC });
       R.gcIdeal = s => PS.compEval(kd.cp, s);
       R.gcPlot = s => PS.compEval(R.rz.cpReal, s);
       R.gc = R.gcPlot;

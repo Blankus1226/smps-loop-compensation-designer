@@ -136,7 +136,7 @@ UI.renderComp = function (R) {
   if (dig) $('schem').innerHTML = PS.schem('dig', { adc: P.adcBits + ' bit', ord: (R.qz.a.length - 1) + 'P' + (R.qz.a.length - 1) + 'Z', act: P.mode === 'pcmc' ? 'DAC' : 'DPWM', actv: P.mode === 'pcmc' ? '→ 峰值比较器' : 'N = ' + R.ctx.dig.Npwm, plant: P.mode === 'acm' ? '电流内环 + 功率级' : 'Gvd(s)' });
   else $('schem').innerHTML = PS.schemOf(R.rz, P.family);
   if (!dig) {
-    h.push('<h3>元件值</h3><table class="tb"><tr><th>元件</th><th>计算值</th><th>' + (P.roundE ? 'E 系列' : '取值') + '</th><th>偏差</th></tr>');
+    h.push('<h3>元件值</h3><table class="tb"><tr><th>元件</th><th>计算值</th><th>' + (P.roundE ? 'E' + P.eR + ' / E' + P.eC : '取值') + '</th><th>偏差</th></tr>');
     R.rz.parts.forEach(p => h.push(`<tr><td>${p.name}</td><td>${PS.fmt(p.ideal, p.unit, 4)}</td><td><b>${PS.fmt(p.val, p.unit, 3)}</b></td><td>${((p.val / p.ideal - 1) * 100).toFixed(1)}%</td></tr>`));
     h.push('</table>');
   }

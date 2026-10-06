@@ -55,7 +55,7 @@ Lr.partSteps = function (cp, rz, fam, cfg) {
     if (g('Rb') > 0) st.push({ t: '下分压电阻（只定直流）', f: 'Rb = R1·Vref/(Vo − Vref)', r: 'Rb = <b>' + V(g('Rb'), 'Ω') + '</b>' });
   }
   if (cfg.round) {
-    st.push({ t: '圆整到 E 系列（R → E96，C → E24）', r: rz.parts.map(q => q.name + ' ' + V(q.ideal, q.unit, 4) + ' → <b>' + V(q.val, q.unit, 3) + '</b>').join('；') });
+    st.push({ t: '圆整到 E 系列（R → E' + (cfg.eR || 96) + '，C → E' + (cfg.eC || 24) + '）', r: rz.parts.map(q => q.name + ' ' + V(q.ideal, q.unit, 4) + ' → <b>' + V(q.val, q.unit, 3) + '</b>').join('；') });
     const a = PS.pzList(cp), b = PS.pzList(rz.cpReal);
     st.push({ t: '圆整后实际极零点', r: a.map((x, i) => x.k + ' ' + hz(x.f) + ' → ' + hz(b[i].f) + '（' + ((b[i].f / x.f - 1) * 100).toFixed(1) + '%）').join('；') });
   }

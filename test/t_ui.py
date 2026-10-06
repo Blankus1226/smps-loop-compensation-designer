@@ -25,6 +25,14 @@ window.addEventListener('load', () => setTimeout(async () => {
     UI.load(PS.preset(0)); UI.set('mode', m); UI.set('impl', im); if (im === 'analog') UI.set('family', fam);
     chk(`切换 ${m}/${im}/${fam}`, () => !!UI.R && !UI.R.fatal);
   }
+  // E 系列下拉：通过真实 <select> 切换，元件表随之变化；取消圆整时下拉隐藏
+  UI.load(PS.preset(0));
+  const etab = () => document.getElementById('comp-tables').textContent, pick = (k, v) => { const el = document.getElementById('f-' + k); el.value = v; el.onchange({ target: el }); };
+  const e0 = etab(); pick('eR', '12'); const e1 = etab(); pick('eC', '6'); const e2 = etab();
+  chk('E 系列切换电阻', () => UI.P.eR === 12 && e1 !== e0 && e1.includes('E12 / E24'));
+  chk('E 系列切换电容', () => UI.P.eC === 6 && e2 !== e1 && UI.R.rz.parts.filter(p => p.unit === 'F').every(p => PS.E_SERIES[6].some(x => Math.abs(p.val / Math.pow(10, Math.floor(Math.log10(p.val))) * 10 - x) < 1e-6)));
+  const ck = document.querySelector('#form [data-k="roundE"] input'); ck.checked = false; ck.onchange({ target: ck });
+  chk('取消圆整隐藏系列下拉', () => document.querySelector('#form [data-k="eR"]').hidden && !UI.P.roundE);
   UI.load(PS.preset(0)); const t = document.getElementById('tune-on'); t.checked = true; t.onchange();
   chk('手动微调启用', () => UI.P.manual && document.querySelectorAll('#tune input[type=range]').length === 5);
   const s = document.getElementById('tn-fc'); s.value = 600; s.oninput();

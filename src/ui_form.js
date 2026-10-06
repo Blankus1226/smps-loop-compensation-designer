@@ -4,6 +4,7 @@
 const PS = G.PS, UI = PS.UI = { P: PS.preset(0) };
 const dig = P => P.impl === 'digital', isCot = P => P.mode === 'coti' || P.mode === 'cotr';
 const notDigCot = P => !isCot(P);
+const E_OPTS = [['6', 'E6（±20%）'], ['12', 'E12（±10%）'], ['24', 'E24（±5%）'], ['48', 'E48（±2%）'], ['96', 'E96（±1%）'], ['192', 'E192（±0.5%）']];
 // 字段：k 键，l 标签，u 单位，sc 显示比例（显示值 = 存储值 / sc），show 可见条件
 UI.GROUPS = [
   { t: '拓扑与工况', open: true, f: [
@@ -32,7 +33,9 @@ UI.GROUPS = [
     { k: 'R1', l: '上分压电阻 R1', u: 'Ω', show: P => !dig(P) && P.family === 'opamp' },
     { k: 'gm', l: 'OTA 跨导 gm', u: 'S', show: P => !dig(P) && P.family === 'ota' },
     { k: 'RbOta', l: '下分压电阻 Rb', u: 'Ω', show: P => !dig(P) && P.family === 'ota' },
-    { k: 'roundE', type: 'check', l: '元件圆整到 E96/E24', show: P => !dig(P) }] },
+    { k: 'roundE', type: 'check', l: '元件圆整到 E 系列', show: P => !dig(P) },
+    { k: 'eR', type: 'select', l: '电阻系列', opts: E_OPTS, num: true, show: P => !dig(P) && P.roundE },
+    { k: 'eC', type: 'select', l: '电容系列', opts: E_OPTS, num: true, show: P => !dig(P) && P.roundE }] },
   { t: '电流内环（ACM）', open: true, show: P => P.mode === 'acm', f: [
     { k: 'fciAuto', type: 'check', l: '自动推荐 fci' }, { k: 'fci', l: '内环穿越频率 fci', u: 'Hz', show: P => !P.fciAuto },
     { k: 'pmi', l: '内环目标 PM', u: '°', plain: true }, { k: 'Rci', l: '内环输入电阻', u: 'Ω', show: P => !dig(P) }] },
@@ -77,7 +80,7 @@ UI.buildForm = function () {
         row.className = 'fr';
         const opts = typeof f.opts === 'function' ? f.opts(P) : f.opts, id = 'f-' + f.k;
         row.innerHTML = `<label for="${id}">${f.l}</label><select id="${id}">${opts.map(([v, t]) => `<option value="${v}" ${String(P[f.k]) === v ? 'selected' : ''}>${t}</option>`).join('')}</select>`;
-        row.querySelector('select').onchange = e => UI.set(f.k, e.target.value);
+        row.querySelector('select').onchange = e => UI.set(f.k, f.num ? +e.target.value : e.target.value);
       } else {
         row.className = 'fr';
         const id = 'f-' + f.k;

@@ -40,6 +40,17 @@ PS.PRESETS.forEach((pr, i) => {
   const R2 = PS.design(P2), c = R2.kd.cp, d = R2.rz.cpReal;
   ok(near(c.wi, d.wi, 1e-9) && c.z.every((w, i) => near(w, d.z[i], 1e-9)) && c.p.every((w, i) => near(w, d.p[i], 1e-9)), 'OTA Type III（Cff）元件反算一致');
 }
+// 4b. E 系列：长度、IEC 60063 例外值、按所选系列圆整
+{
+  const S = PS.E_SERIES;
+  ok([6, 12, 24, 48, 96, 192].every(n => S[n].length === n), 'E6…E192 各含 N 个值');
+  ok(S[192].includes(920) && !S[192].includes(919) && S[48].includes(464), 'E192 例外 9.20、E48 取值正确');
+  ok(PS.roundE(4.53e3, 12) === 4.7e3 && PS.roundE(4.53e3, 48) === 4.64e3 && PS.roundE(4.53e3, 96) === 4.53e3, '同一阻值按系列圆整到不同标称值');
+  const vals = (eR, eC) => { const P = PS.preset(0); P.eR = eR; P.eC = eC; return PS.design(P).rz.parts.map(p => p.val).join(); };
+  ok(vals(96, 24) !== vals(12, 6) && vals(96, 24) !== vals(96, 12), '切换电阻/电容系列后元件值随之改变');
+  const P = PS.preset(0); P.eR = 6; P.eC = 6;
+  ok(PS.design(P).rz.parts.every(p => S[6].some(x => Math.abs(p.val / Math.pow(10, Math.floor(Math.log10(p.val))) * 10 - x) < 1e-6)), 'E6 设计的全部元件都落在 E6 上');
+}
 // 5. 离散化：Tustin 在 fc 处与模拟原型一致；量化后积分极点精确
 {
   const cp = { type: 3, wi: 2e4, z: [2e4, 5e4], p: [6e5, 1.2e6] }, T = 1 / 200e3, fc = 10e3;

@@ -75,21 +75,23 @@ PS.manualComp = function (Pfun, fc, m, opt) {
 };
 
 /* RC 实现。opamp：R1 = 上分压电阻（输入电阻），Rb 只决定直流偏置。
-   ota：Gc = H0·gm·Zo，Type III 用 Cff 并联在 Rt 上。返回 {parts:[{name,ideal,val,unit}], cpReal} */
+   ota：Gc = H0·gm·Zo，Type III 用 Cff 并联在 Rt 上。返回 {parts:[{name,ideal,val,unit}], cpReal}
+   cfg.round 为真时电阻圆整到 E{cfg.eR}、电容圆整到 E{cfg.eC}（默认 E96 / E24；0 表示该类不圆整） */
 PS.realize = function (cp, fam, cfg) {
-  const parts = [], add = (name, v, unit, ser) => parts.push({ name, ideal: v, val: cfg.round ? PS.roundE(v, ser) : v, unit });
+  const ser = { R: cfg.eR == null ? 96 : +cfg.eR, C: cfg.eC == null ? 24 : +cfg.eC };
+  const parts = [], add = (name, v, unit, k) => parts.push({ name, ideal: v, val: cfg.round ? PS.roundE(v, ser[k]) : v, unit });
   const z = cp.z, p = cp.p;   // 成对使用：(z[0],p[0]) 主对，(z[1],p[1]) 第二对 / Cff 对
   const g = n => parts.find(x => x.name === n).val;
   const real = { type: cp.type, z: [], p: [], wi: 0 };
   if (fam === 'opamp') {
-    const R1 = cfg.R1; add('R1', R1, 'Ω', 96);
-    if (cp.type === 1) { add('C1', 1 / (cp.wi * R1), 'F', 24); }
+    const R1 = cfg.R1; add('R1', R1, 'Ω', 'R');
+    if (cp.type === 1) { add('C1', 1 / (cp.wi * R1), 'F', 'C'); }
     else {
       const Ct = 1 / (cp.wi * R1), C2 = Ct * z[0] / p[0], C1 = Ct - C2;
-      add('C1', C1, 'F', 24); add('C2', C2, 'F', 24); add('R2', 1 / (z[0] * C1), 'Ω', 96);
-      if (cp.type === 3) { const C3 = (1 / z[1] - 1 / p[1]) / R1; add('C3', C3, 'F', 24); add('R3', 1 / (p[1] * C3), 'Ω', 96); }
+      add('C1', C1, 'F', 'C'); add('C2', C2, 'F', 'C'); add('R2', 1 / (z[0] * C1), 'Ω', 'R');
+      if (cp.type === 3) { const C3 = (1 / z[1] - 1 / p[1]) / R1; add('C3', C3, 'F', 'C'); add('R3', 1 / (p[1] * C3), 'Ω', 'R'); }
     }
-    if (cfg.Rb !== false) add('Rb', R1 * cfg.Vref / (cfg.Vo - cfg.Vref), 'Ω', 96);
+    if (cfg.Rb !== false) add('Rb', R1 * cfg.Vref / (cfg.Vo - cfg.Vref), 'Ω', 'R');
     const r1 = g('R1');
     if (cp.type === 1) real.wi = 1 / (r1 * g('C1'));
     else {
@@ -99,13 +101,13 @@ PS.realize = function (cp, fam, cfg) {
     }
   } else {
     const gm = cfg.gm, Rb = cfg.Rb_ota, Rt = Rb * (cfg.Vo - cfg.Vref) / cfg.Vref, H0 = cfg.Vref / cfg.Vo;
-    add('Rt', Rt, 'Ω', 96); add('Rb', Rb, 'Ω', 96);
+    add('Rt', Rt, 'Ω', 'R'); add('Rb', Rb, 'Ω', 'R');
     const ff = cp.type === 3;
-    if (cp.type === 1) add('Cc', H0 * gm / cp.wi, 'F', 24);
+    if (cp.type === 1) add('Cc', H0 * gm / cp.wi, 'F', 'C');
     else {
       const Ct = H0 * gm / cp.wi, Cp = Ct * z[0] / p[0], Cc = Ct - Cp;
-      add('Cc', Cc, 'F', 24); add('Cp', Cp, 'F', 24); add('Rc', 1 / (z[0] * Cc), 'Ω', 96);
-      if (ff) add('Cff', 1 / (z[1] * Rt), 'F', 24);
+      add('Cc', Cc, 'F', 'C'); add('Cp', Cp, 'F', 'C'); add('Rc', 1 / (z[0] * Cc), 'Ω', 'R');
+      if (ff) add('Cff', 1 / (z[1] * Rt), 'F', 'C');
     }
     const rt = g('Rt'), rb = g('Rb'), h0 = rb / (rt + rb);
     real.Vo = cfg.Vref / h0;

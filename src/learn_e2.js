@@ -11,7 +11,7 @@ Lr.innerSteps = function (R) {
   st.push({ t: '所需提升', f: 'Boost = PMi − 90° − ∠Pi', r: P.pmi + '° − 90° − (' + dg(ph) + ') = ' + dg(I.kd.boost) });
   Lr.kSteps(I.kd, fci, false).forEach(x => st.push(x));
   st.push(Lr.gainStep(I.kd, Pm, fci));
-  if (I.rz) Lr.partSteps(I.kd.cp, I.rz, 'opamp', { R1: P.Rci, round: P.roundE }).forEach(x => st.push(x));
+  if (I.rz) Lr.partSteps(I.kd.cp, I.rz, 'opamp', { R1: P.Rci, round: P.roundE, eR: P.eR, eC: P.eC }).forEach(x => st.push(x));
   if (I.dc) Lr.discSteps(I.kd.cp, I.dc, I.qz, R.ctx.Ts, fci, P.disc).forEach(x => st.push(x));
   st.push({ t: '内环结果', r: 'fci = ' + hz(I.mg.fc) + '，PMi = ' + dg(I.mg.pm) });
   return st;
@@ -53,7 +53,7 @@ Lr.designSteps = function (R) {
     Lr.kSteps(kd, fc, P.family === 'ota' && !dig, R.ctx.H).forEach(x => st.push(x));
   }
   st.push(Lr.gainStep(kd, Pm, fc));
-  if (R.rz) Lr.partSteps(kd.cp, R.rz, P.family, { R1: P.R1, Rb: P.RbOta, gm: P.gm, Vref: P.Vref, Vo: P.Vo, round: P.roundE }).forEach(x => st.push(x));
+  if (R.rz) Lr.partSteps(kd.cp, R.rz, P.family, { R1: P.R1, Rb: P.RbOta, gm: P.gm, Vref: P.Vref, Vo: P.Vo, round: P.roundE, eR: P.eR, eC: P.eC }).forEach(x => st.push(x));
   if (R.dc) Lr.discSteps(kd.cp, R.dc, R.qz, R.ctx.Ts, fc, P.disc).forEach(x => st.push(x));
   st.push('验证');
   st.push({ t: '用' + (dig ? '量化后系数' : '圆整后元件') + '重算环路', r: 'fc = ' + hz(R.mg.fc) + '，<b>PM = ' + dg(R.mg.pm) + '</b>，GM = ' + (isFinite(R.mg.gm) ? R.mg.gm.toFixed(2) + ' dB' : '∞') + (R.mg.crossings > 1 ? '（' + R.mg.crossings + ' 次穿越，最小 PM ' + dg(R.mg.pmMin) + '）' : '') });
