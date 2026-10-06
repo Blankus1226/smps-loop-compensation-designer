@@ -16,3 +16,6 @@ test/shots/
 # Datasheet PDFs (copyrighted by their vendors)
 数据手册/
 *.pdf
+
+# Local notes
+需求文档.md
